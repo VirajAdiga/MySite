@@ -13,7 +13,6 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         posts = cache.get('posts')
-        print(posts)
         if posts is None:
             posts = Post.objects.all()
             cache.set('posts', posts, timeout=60*5)
@@ -42,7 +41,10 @@ class ReadLaterView(View):
     def get(self, request):
         context = {}
         posts_id = request.session.get('stored_posts')
-        posts = Post.objects.filter(id__in=posts_id)
+        if posts_id is not None:
+            posts = Post.objects.filter(id__in=posts_id)
+        else:
+            posts = None
         if not posts:
             context['posts'] = []
             context['has_posts'] = False
